@@ -1,24 +1,27 @@
-import React from "react";
+import React from 'react';
 
-const DataDeletionPage = () => {
+const DataDeletion = () => {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white p-4">
-      <h1 className="text-3xl font-bold mb-4">Data Deletion Instructions</h1>
-      <p className="mb-4 text-center max-w-xl">
-        If you logged into Coaching Finder using Facebook and want to delete your data, follow these steps:
-      </p>
-      <ol className="list-decimal list-inside text-left max-w-xl space-y-2">
-        <li>Go to your Facebook Account Settings</li>
-        <li>Click <strong>Apps and Websites</strong></li>
-        <li>Find <strong>Coaching Finder</strong> and click <strong>Remove</strong></li>
-        <li>Facebook will notify us and your data will be deleted.</li>
-      </ol>
-      <p className="mt-6">
-        For manual deletion, email us at: <a href="mailto:contact@coachingfinder.com" className="text-blue-500 underline">contact@coachingfinder.com</a>
-      </p>
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gray-100 dark:bg-gray-900">
+      <div className="max-w-2xl bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-md">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+          Data Deletion Instructions
+        </h1>
+        <p className="text-gray-700 dark:text-gray-300 mb-4">
+          If you signed up to Coaching Finder using Facebook and want to delete your data, please follow these steps:
+        </p>
+        <ol className="list-decimal list-inside text-gray-700 dark:text-gray-300 space-y-2">
+          <li>Go to your Facebook account settings.</li>
+          <li>Select <strong>Apps and Websites</strong> from the left menu.</li>
+          <li>Find <strong>Coaching Finder</strong> in the list and click <strong>Remove</strong>.</li>
+          <li>This will revoke access and automatically delete the data associated with your account.</li>
+        </ol>
+        <p className="mt-6 text-gray-700 dark:text-gray-300">
+          Alternatively, you can contact us at <a href="mailto:contact@coachingfinder.com" className="text-blue-600 dark:text-blue-400 underline">contact@coachingfinder.com</a> with your Facebook user ID and we will remove your data manually within 48 hours.
+        </p>
+      </div>
     </div>
   );
 };
 
-export default DataDeletionPage;
-
+export default DataDeletion;
