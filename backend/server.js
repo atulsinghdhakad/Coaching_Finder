@@ -13,3 +13,19 @@ mongoose.connect(dbURI, {
 .catch((err) => {
   console.log('❌ MongoDB connection error:', err);
 });
+
+app.use((req, res, next) => {
+  if (req.headers['x-forwarded-proto'] !== 'https') {
+    return res.redirect('https://' + req.headers.host + req.url);
+  }
+  next();
+});
+
+// Your other routes and server configurations
+app.get('/', (req, res) => {
+  res.send('Hello World');
+});
+
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});
