@@ -1,44 +1,66 @@
-// src/pages/ProfilePage.js
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getAuth, signOut } from 'firebase/auth';
+import React, { useEffect, useState } from 'react';
+import { auth } from '../firebase';  // Make sure to import Firebase Auth
 
-const ProfilePage = () => {
-  const auth = getAuth();
-  const user = auth.currentUser;
-  const navigate = useNavigate();
+const Profile = () => {
+  const [user, setUser] = useState(null);
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      navigate('/login');
-    } catch (error) {
-      console.error('Error logging out:', error);
+  useEffect(() => {
+    // Get the current user from Firebase
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      setUser(currentUser);
+    } else {
+      // Redirect to login if no user is found
+      window.location.href = '/login';
     }
+  }, []);
+
+  const handleLogout = () => {
+    auth.signOut()
+      .then(() => {
+        // Redirect to login after logout
+        window.location.href = '/login';
+      })
+      .catch((error) => {
+        console.error('Error logging out:', error);
+      });
   };
-  
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-blue-100 dark:from-gray-900 dark:to-gray-800 px-4">
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md max-w-md w-full text-center">
-        <img
-          src={user?.photoURL || 'https://via.placeholder.com/100'}
-          alt="User"
-          className="w-24 h-24 rounded-full mx-auto mb-4"
-        />
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{user?.displayName || 'User'}</h2>
-        <p className="text-gray-700 dark:text-gray-300">{user?.email}</p>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">{user?.phoneNumber || 'Phone not available'}</p>
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-900 px-4">
+      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-xl p-8 w-full max-w-md">
+        {user ? (
+          <>
+            <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-white mb-6">Profile</h2>
 
-        <button
-          onClick={handleLogout}
-          className="mt-6 w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-md"
-        >
-          Logout
-        </button>
+            <div className="flex justify-center mb-4">
+              {user.photoURL ? (
+                <img src={user.photoURL} alt="Profile" className="w-24 h-24 rounded-full" />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-gray-300 flex justify-center items-center text-white">
+                  {user.displayName ? user.displayName.charAt(0) : 'U'}
+                </div>
+              )}
+            </div>
+
+            <p className="text-center text-gray-800 dark:text-white text-lg mb-4">{user.displayName || 'No name available'}</p>
+            <p className="text-center text-gray-600 dark:text-gray-300">{user.email || 'No email available'}</p>
+
+            <div className="mt-6">
+              <button
+                onClick={handleLogout}
+                className="w-full bg-red-600 text-white p-3 rounded-md hover:bg-red-700 transition"
+              >
+                Logout
+              </button>
+            </div>
+          </>
+        ) : (
+          <p className="text-center text-gray-800 dark:text-white">Loading...</p>
+        )}
       </div>
     </div>
   );
 };
 
-export default ProfilePage;
+export default Profile;

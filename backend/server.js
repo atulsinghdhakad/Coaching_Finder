@@ -12,6 +12,7 @@ mongoose.connect(dbURI, {
 })
 .catch((err) => {
   console.log('❌ MongoDB connection error:', err);
+<<<<<<< HEAD
 });
 
 app.use((req, res, next) => {
@@ -28,4 +29,6 @@ app.get('/', (req, res) => {
 
 app.listen(3000, () => {
   console.log('Server is running on port 3000');
+=======
+>>>>>>> e0205da (Fix navbar overlap and improve responsiveness on mobile view)
 });
