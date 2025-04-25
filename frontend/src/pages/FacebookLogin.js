@@ -5,33 +5,7 @@ import { auth } from '../firebase'; // Adjust the path to your Firebase configur
 const FacebookLogin = () => {
   useEffect(() => {
     // Load Facebook SDK
-    const loadFBSDK = () => {
-      if (window.FB) return;
-
-      window.fbAsyncInit = function () {
-        window.FB.init({
-          appId: '3893553884230560', // 🔁 Replace with your Facebook App ID
-          cookie: true,
-          xfbml: true,
-          version: 'v18.0',
-        });
-      };
-
-      const script = document.createElement('script');
-      script.src = 'https://connect.facebook.net/en_US/sdk.js';
-      script.async = true;
-      script.defer = true;
-      document.body.appendChild(script);
-
-      return () => {
-        document.body.removeChild(script);
-      };
-    };
-
-    loadFBSDK();
-  }, []);
-
-  // const handleFacebookLogin = () => {
+      // const handleFacebookLogin = () => {
   //   if (!window.FB) return;
 
   //   window.FB.login(
