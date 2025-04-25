@@ -3,42 +3,53 @@ import { signInWithPopup, FacebookAuthProvider } from 'firebase/auth';
 import { auth } from '../firebase'; // Adjust the path to your Firebase configuration file
 
 const FacebookLogin = () => {
+  // Load Facebook SDK
   useEffect(() => {
-    // Load Facebook SDK
-      // const handleFacebookLogin = () => {
-  //   if (!window.FB) return;
+    const loadFBSDK = () => {
+      if (window.FB) return; // Facebook SDK is already loaded
 
-  //   window.FB.login(
-  //     (response) => {
-  //       if (response.authResponse) {
-  //         console.log('✅ Logged in:', response);
-  //         fetchFacebookUserData();
-  //       } else {
-  //         console.log('❌ User cancelled login or did not authorize.');
-  //       }
-  //     },
-  //     { scope: 'public_profile,email' }
-  //   );
-  // };
+      window.fbAsyncInit = function () {
+        window.FB.init({
+          appId: 'YOUR_FACEBOOK_APP_ID', // Replace with your Facebook App ID
+          cookie: true,
+          xfbml: true,
+          version: 'v18.0',
+        });
+      };
 
+      const script = document.createElement('script');
+      script.src = 'https://connect.facebook.net/en_US/sdk.js';
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+    };
+
+    loadFBSDK();
+  }, []);
+
+  // Handle Facebook login using Firebase Authentication
   const handleFacebookLogin = async () => {
     try {
       const provider = new FacebookAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      console.log(user);
-      // Additional logic for the user
+      console.log('Facebook login successful:', user);
+      fetchFacebookUserData();
     } catch (error) {
       console.error('Facebook login error:', error);
     }
   };
-  
 
+  // Fetch additional user data from Facebook Graph API
   const fetchFacebookUserData = () => {
-    window.FB.api('/me', { fields: 'id,name,first_name,email' }, function (response) {
-      console.log('📄 Facebook User Data:', response);
-      alert(`Welcome, ${response.name}!`);
-    });
+    if (window.FB) {
+      window.FB.api('/me', { fields: 'id,name,first_name,email' }, function (response) {
+        console.log('📄 Facebook User Data:', response);
+        alert(`Welcome, ${response.name}!`);
+      });
+    } else {
+      console.error('Facebook SDK is not loaded!');
+    }
   };
 
   return (
