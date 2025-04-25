@@ -6,7 +6,7 @@ const FacebookLogin = () => {
   // Load Facebook SDK
   useEffect(() => {
     const loadFBSDK = () => {
-      if (window.FB) return; // Facebook SDK is already loaded
+      if (window.FB) return;
 
       window.fbAsyncInit = function () {
         window.FB.init({
@@ -15,6 +15,7 @@ const FacebookLogin = () => {
           xfbml: true,
           version: 'v18.0',
         });
+        console.log('Facebook SDK initialized');
       };
 
       const script = document.createElement('script');
@@ -24,31 +25,39 @@ const FacebookLogin = () => {
       document.body.appendChild(script);
     };
 
-    loadFBSDK();
+    // Initialize Facebook SDK
+    const initFBSDK = async () => {
+      loadFBSDK();
+    };
+
+    initFBSDK();
   }, []);
 
-  // Handle Facebook login using Firebase Authentication
+  // Facebook login function using Firebase
   const handleFacebookLogin = async () => {
+    console.log('Facebook login button clicked');
+
     try {
       const provider = new FacebookAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       console.log('Facebook login successful:', user);
+
+      // Fetch Facebook user data after successful login
       fetchFacebookUserData();
     } catch (error) {
       console.error('Facebook login error:', error);
+      alert('Error logging in with Facebook!');
     }
   };
 
-  // Fetch additional user data from Facebook Graph API
+  // Fetch user data from Facebook API
   const fetchFacebookUserData = () => {
     if (window.FB) {
       window.FB.api('/me', { fields: 'id,name,first_name,email' }, function (response) {
         console.log('📄 Facebook User Data:', response);
         alert(`Welcome, ${response.name}!`);
       });
-    } else {
-      console.error('Facebook SDK is not loaded!');
     }
   };
 
