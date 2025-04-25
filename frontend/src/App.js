@@ -9,7 +9,7 @@ import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import './App.css'; // Ensure global styles
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import DataDeletion from './pages/DataDeletion';
+import DataDeletion from './pages/DataDeletionPage';
 
 
 const App = () => {
