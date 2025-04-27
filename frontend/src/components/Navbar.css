@@ -173,3 +173,48 @@ body.dark .navbar .absolute button:hover {
 .navbar .absolute button:last-child {
 	margin-top: 0.5rem;
 }
+
+
+
+.nav-link {
+	position: relative;
+	display: inline-block;
+	color: #1a202c; /* Text color */
+	font-size: 1rem;
+	font-weight: 500;
+  }
+  
+  .nav-link:before,
+  .nav-link:after {
+	content: '';
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	transition: width 0.3s, bottom 0.3s;
+  }
+  
+  .nav-link:before {
+	bottom: 0;
+	width: 0;
+	height: 2px;
+	background-color: #3182ce; /* Blue underline color */
+  }
+  
+  .nav-link:hover:before {
+	width: 100%;
+  }
+  
+  .nav-link:after {
+	bottom: -2px;
+	width: 0;
+	height: 1px;
+	background: linear-gradient(to right, #fbbf24, #facc15); /* Gradient hover effect */
+  }
+  
+  .nav-link:hover:after {
+	width: 100%;
+  }
+  
+  .nav-link:hover {
+	color: #3182ce; /* Text color change on hover */
+  }

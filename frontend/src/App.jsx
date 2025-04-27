@@ -7,9 +7,13 @@ import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
-import './App.css'; // Ensure global styles
+import './App.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import Footer from './components/Footer';
+import ScrollToTop from "./pages/ScrolltoTop";
 
+// Import AuthProvider from AuthContext
+import { AuthProvider } from './context/AuthContext';
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -37,20 +41,24 @@ const App = () => {
   };
 
   return (
-    <Router>
-      {/* Dark mode toggle applied globally to the root element */}
-      <div className={darkMode ? 'dark' : ''}>
-        <Navbar darkMode={darkMode} setDarkMode={setDarkMode} toggleDarkMode={toggleDarkMode} />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-        </Routes>
-      </div>
-    </Router>
+    <AuthProvider>
+      {/* Only one Router here */}
+      <Router>
+        <div className={darkMode ? 'dark' : ''}>
+          <Navbar darkMode={darkMode} setDarkMode={setDarkMode} toggleDarkMode={toggleDarkMode} />
+          <ScrollToTop />
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+          </Routes>
+        </div>
+        <Footer />
+      </Router>
+    </AuthProvider>
   );
 };
 
