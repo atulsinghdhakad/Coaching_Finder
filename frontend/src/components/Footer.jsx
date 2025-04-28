@@ -1,6 +1,8 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPhoneAlt, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 import { faFacebookF, faTwitter, faLinkedinIn, faInstagram, faGithub } from '@fortawesome/free-brands-svg-icons';
+import { Link } from 'react-router-dom';
+
 
 const Footer = () => {
   return (
@@ -78,7 +80,11 @@ const Footer = () => {
               </div>
             </div>
           </div>
-
+          <div className="mt-4">
+          <Link to="/privacy-policy" className="hover:text-gray-400 text-sm">
+            Privacy Policy
+          </Link>
+        </div>
           {/* Copyright */}
           <div className="mt-8 text-center text-sm text-gray-400">
             <p>© {new Date().getFullYear()} Coaching Finder. All rights reserved.</p>

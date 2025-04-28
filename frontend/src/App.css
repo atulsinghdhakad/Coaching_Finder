@@ -1,47 +1,120 @@
-/* Global Dark Mode Styles */
-body.dark {
-  background-color: #1a202c; /* Dark mode background */
-  color: #e2e8f0; /* Dark mode text color */
+/* Global Base Styling */
+html {
+  scroll-behavior: smooth;
 }
 
-/* Navbar Dark Mode */
-.navbar.dark {
-  background-color: #2d3748; /* Dark mode navbar background */
+body {
+  background-color: #f9fafb;
+  color: #111827;
+  font-family: 'Inter', 'Poppins', 'Helvetica Neue', sans-serif;
+  transition: all 0.3s ease;
 }
 
-/* Input, Select, Button Dark Mode */
-body.dark input, 
-body.dark select, 
-body.dark button {
-  background-color: #4a5568; /* Dark mode background */
-  color: #e2e8f0; /* Dark mode text color */
-  border: 1px solid #718096; /* Dark mode border */
+.dark body {
+  background-color: #111827;
+  color: #f9fafb;
 }
 
-/* Dark Mode Button (toggle) */
-body.dark .dark-mode-toggle {
-  background-color: #2d3748; /* Dark mode button background */
-  color: #e2e8f0; /* Dark mode text color */
+/* Utility Classes */
+.btn-primary {
+  background-color: #2563eb;
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
 }
 
-/* Link Hover Effect */
-body.dark a:hover {
-  color: #63b3ed; /* Dark mode hover color */
+.btn-primary:hover {
+  background-color: #1e40af;
+  transform: scale(1.03);
 }
 
-/* Dropdown Menu Dark Mode */
-body.dark .navbar .dropdown-menu {
-  background-color: #2d3748; /* Dark mode dropdown background */
-  color: #e2e8f0; /* Dark mode text color */
+/* Card Styles */
+.card {
+  background-color: white;
+  color: black;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
 }
 
-/* Adjust Text Color in Dark Mode */
-body.dark .text-black {
-  color: #e2e8f0; /* Dark mode text color */
+.dark .card {
+  background-color: #1f2937;
+  color: #d1d5db;
 }
 
-/* Adjust Button Hover for Dark Mode */
-body.dark button:hover {
-  background-color: #2d3748; /* Dark mode button hover background */
-  color: #63b3ed; /* Dark mode button hover color */
+.card:hover {
+  transform: scale(1.03);
+}
+
+/* Section Headers */
+.section-header {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2563eb;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Inputs and Selects */
+input, select {
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.dark input, .dark select {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: white;
+}
+
+/* Footer Links */
+.footer-link {
+  color: #6b7280;
+  transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+/* Mobile Search Filters Accordion */
+.mobile-filter {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.dark .mobile-filter {
+  background-color: #1f2937;
+}
+
+.mobile-filter.open {
+  max-height: 500px;
+  padding: 1rem;
+}
+
+.mobile-filter.closed {
+  max-height: 0;
+  padding: 0;
+}
+
+/* Smooth Animations */
+.animate-bounce-spring {
+  animation: bounceSpring 0.5s ease forwards;
+}
+
+@keyframes bounceSpring {
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 }

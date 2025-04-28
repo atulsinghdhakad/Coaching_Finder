@@ -15,6 +15,7 @@ import { Toaster } from 'react-hot-toast';
 import ScrollProgressBar from './pages/ScrollProgressBar';
 import NotFoundPage from './pages/NotFoundPage'; // Import NotFoundPage component
 import BottomToastNotification from './pages/BottomToastNotification';
+import PrivacyPolicy from './pages/PrivacyPolicy'; // Import PrivacyPolicy component
 
 
 
@@ -62,6 +63,7 @@ const App = () => {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="*" element={<NotFoundPage />} />
           <Route path="/register" component={RegisterPage} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         </Routes>
         
         <Footer />
