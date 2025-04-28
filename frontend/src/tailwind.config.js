@@ -7,6 +7,8 @@ module.exports = {
       animation: {
         shineGlow: 'shineGlow 4s ease-in-out infinite', // Glowing animation
         pulseGlow: 'pulseGlow 2s infinite', // (Optional) pulsing glow
+        'gradient-x': 'gradient-x 5s ease infinite', // Rainbow gradient animation
+        'pulse-glow': 'pulse-glow 3s ease-in-out infinite', // Pulsing glow effect
       },
       keyframes: {
         shineGlow: {
@@ -17,6 +19,14 @@ module.exports = {
         pulseGlow: {
           '0%, 100%': { boxShadow: '0 0 8px #00f0ff, 0 0 16px #00f0ff, 0 0 24px #00f0ff' },
           '50%': { boxShadow: '0 0 16px #00f0ff, 0 0 32px #00f0ff, 0 0 48px #00f0ff' },
+        },
+        'gradient-x': {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
+        'pulse-glow': {
+          '0%, 100%': { boxShadow: '0 0 8px rgba(255, 255, 255, 0.8)' },
+          '50%': { boxShadow: '0 0 20px rgba(255, 255, 255, 1)' },
         },
       },
       backgroundImage: {

@@ -7,13 +7,17 @@ import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
-import './App.css';
+import './App.css'; // Ensure global styles
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import Footer from './components/Footer';
-import ScrollToTop from "./pages/ScrolltoTop";
+import Footer from './components/Footer'; // Import Footer component
+import ScrollToTop from './pages/ScrollToTop';
+import { Toaster } from 'react-hot-toast';
+import ScrollProgressBar from './pages/ScrollProgressBar';
+import NotFoundPage from './pages/NotFoundPage'; // Import NotFoundPage component
+import BottomToastNotification from './pages/BottomToastNotification';
 
-// Import AuthProvider from AuthContext
-import { AuthProvider } from './context/AuthContext';
+
+
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -41,24 +45,35 @@ const App = () => {
   };
 
   return (
-    <AuthProvider>
-      {/* Only one Router here */}
-      <Router>
-        <div className={darkMode ? 'dark' : ''}>
-          <Navbar darkMode={darkMode} setDarkMode={setDarkMode} toggleDarkMode={toggleDarkMode} />
-          <ScrollToTop />
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-          </Routes>
-        </div>
+    <>
+    <Router>
+      {/* Dark mode toggle applied globally to the root element */}
+      <div className={darkMode ? 'dark' : ''}>
+      <ScrollProgressBar />
+      <ScrollToTop/>
+        <Navbar darkMode={darkMode} setDarkMode={setDarkMode} toggleDarkMode={toggleDarkMode} />
+        
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+          <Route path="/register" component={RegisterPage} />
+        </Routes>
+        
         <Footer />
-      </Router>
-    </AuthProvider>
+        <ScrollToTop />
+        
+      </div>
+      
+    </Router>
+    <Toaster position="bottom-center" /> {/* Optional: Place toasts at bottom */}
+      <BottomToastNotification />
+    </>
+    
   );
 };
 

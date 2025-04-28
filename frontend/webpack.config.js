@@ -1,15 +1,10 @@
 module.exports = {
-    module: {
-      rules: [
-        {
-          test: /\.css$/,
-          use: [
-            'style-loader',
-            'css-loader',
-            'postcss-loader',
-          ],
-        },
-      ],
-    },
-  };
-  
+  resolve: {
+    fallback: {
+      path: require.resolve('path-browserify'),
+      os: require.resolve('os-browserify/browser'),
+      crypto: require.resolve('crypto-browserify')
+    }
+  },
+  // Other Webpack configurations if any
+};

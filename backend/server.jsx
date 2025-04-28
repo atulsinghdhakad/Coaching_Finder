@@ -1,34 +1,29 @@
-const mongoose = require('mongoose');
-require('dotenv').config(); // Make sure you're loading the .env file
+const express = require('express');
+const cors = require('cors');
+const axios = require('axios');
+require('dotenv').config();
 
-const dbURI = process.env.MONGODB_URI;
+const app = express();
 
-mongoose.connect(dbURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => {
-  console.log('✅ MongoDB connection successful');
-})
-.catch((err) => {
-  console.log('❌ MongoDB connection error:', err);
-<<<<<<< HEAD
-});
+// Enable CORS for all routes
+app.use(cors());
 
-app.use((req, res, next) => {
-  if (req.headers['x-forwarded-proto'] !== 'https') {
-    return res.redirect('https://' + req.headers.host + req.url);
+const PORT = process.env.PORT || 5000;
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY; // from .env file
+
+app.get('/api/places', async (req, res) => {
+  const { lat, lng } = req.query;
+
+  try {
+    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=5000&type=establishment&keyword=coaching&key=${GOOGLE_API_KEY}`;
+    const response = await axios.get(url);
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching from Google Places API:', error.message);
+    res.status(500).json({ error: 'Failed to fetch data' });
   }
-  next();
 });
 
-// Your other routes and server configurations
-app.get('/', (req, res) => {
-  res.send('Hello World');
-});
-
-app.listen(3000, () => {
-  console.log('Server is running on port 3000');
-=======
->>>>>>> e0205da (Fix navbar overlap and improve responsiveness on mobile view)
+app.listen(PORT, () => {
+  console.log(`✅ Backend server running on http://localhost:${PORT}`);
 });
