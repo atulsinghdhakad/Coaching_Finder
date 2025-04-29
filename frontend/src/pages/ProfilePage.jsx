@@ -1,66 +1,154 @@
-import React, { useEffect, useState } from 'react';
-import { auth } from '../firebase';  // Make sure to import Firebase Auth
+import React, { useState, useEffect } from 'react';
+import { auth } from '../firebase';
+import { updateProfile, updatePassword } from 'firebase/auth';
+import { toast } from 'react-hot-toast';
+import Modal from 'react-modal'; // for Modal Popup
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'; // for phone number verification
 
-const Profile = () => {
+Modal.setAppElement('#root'); // Necessary for accessibility
+
+const ProfilePage = () => {
   const [user, setUser] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newDisplayName, setNewDisplayName] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [newProfilePhoto, setNewProfilePhoto] = useState(null);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+  const [is2FAEnabled, setIs2FAEnabled] = useState(false); // Track if 2FA is enabled
 
   useEffect(() => {
-    // Get the current user from Firebase
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      setUser(currentUser);
-    } else {
-      // Redirect to login if no user is found
-      window.location.href = '/login';
-    }
+    const unsubscribe = auth.onAuthStateChanged(setUser);
+    return () => unsubscribe();
   }, []);
 
-  const handleLogout = () => {
-    auth.signOut()
-      .then(() => {
-        // Redirect to login after logout
-        window.location.href = '/login';
+  const handleProfileUpdate = async () => {
+    // Update display name
+    if (newDisplayName) {
+      await updateProfile(auth.currentUser, {
+        displayName: newDisplayName,
+      });
+    }
+
+    // Update profile photo
+    if (newProfilePhoto) {
+      const photoURL = URL.createObjectURL(newProfilePhoto);
+      await updateProfile(auth.currentUser, {
+        photoURL,
+      });
+    }
+
+    // Update password
+    if (newPassword) {
+      await updatePassword(auth.currentUser, newPassword);
+      toast.success('Password updated successfully!');
+    }
+
+    toast.success('Profile updated!');
+    setIsModalOpen(false);
+  };
+
+  // Phone Number Verification (2FA)
+  const handlePhoneNumberVerification = () => {
+    const recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
+      size: 'invisible',
+    }, auth);
+    signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier)
+      .then((confirmationResult) => {
+        window.confirmationResult = confirmationResult;
+        toast.success('OTP sent to your phone!');
       })
       .catch((error) => {
-        console.error('Error logging out:', error);
+        toast.error('Error sending OTP: ' + error.message);
+      });
+  };
+
+  // Verify OTP and complete phone authentication
+  const verifyOTP = () => {
+    const { confirmationResult } = window;
+    confirmationResult.confirm(verificationCode)
+      .then((result) => {
+        setIsPhoneVerified(true);
+        toast.success('Phone verified successfully!');
+      })
+      .catch((error) => {
+        toast.error('Error verifying OTP: ' + error.message);
       });
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-900 px-4">
-      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-xl p-8 w-full max-w-md">
-        {user ? (
-          <>
-            <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-white mb-6">Profile</h2>
-
-            <div className="flex justify-center mb-4">
-              {user.photoURL ? (
-                <img src={user.photoURL} alt="Profile" className="w-24 h-24 rounded-full" />
-              ) : (
-                <div className="w-24 h-24 rounded-full bg-gray-300 flex justify-center items-center text-white">
-                  {user.displayName ? user.displayName.charAt(0) : 'U'}
-                </div>
-              )}
-            </div>
-
-            <p className="text-center text-gray-800 dark:text-white text-lg mb-4">{user.displayName || 'No name available'}</p>
-            <p className="text-center text-gray-600 dark:text-gray-300">{user.email || 'No email available'}</p>
-
-            <div className="mt-6">
-              <button
-                onClick={handleLogout}
-                className="w-full bg-red-600 text-white p-3 rounded-md hover:bg-red-700 transition"
-              >
-                Logout
-              </button>
-            </div>
-          </>
-        ) : (
-          <p className="text-center text-gray-800 dark:text-white">Loading...</p>
-        )}
+    <div className="profile-page">
+      <div className="profile-header">
+        <h2>Your Profile</h2>
+        <button onClick={() => setIsModalOpen(true)} className="btn btn-primary">
+          Edit Profile
+        </button>
       </div>
+      <div className="profile-info">
+        <p><strong>Name:</strong> {user?.displayName}</p>
+        <p><strong>Email:</strong> {user?.email}</p>
+        {user?.photoURL && <img src={user.photoURL} alt="Profile" />}
+        <p><strong>Phone Verified:</strong> {isPhoneVerified ? 'Yes' : 'No'}</p>
+        <p><strong>2FA Enabled:</strong> {is2FAEnabled ? 'Enabled' : 'Not Enabled'}</p>
+      </div>
+
+      {/* Modal for editing profile */}
+      <Modal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)}>
+        <h2>Edit Profile</h2>
+        <form onSubmit={handleProfileUpdate}>
+          <label>
+            Display Name
+            <input
+              type="text"
+              value={newDisplayName}
+              onChange={(e) => setNewDisplayName(e.target.value)}
+              placeholder="New Display Name"
+            />
+          </label>
+          <label>
+            Profile Picture
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setNewProfilePhoto(e.target.files[0])}
+            />
+          </label>
+          <label>
+            New Password
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="New Password"
+            />
+          </label>
+          <label>
+            Phone Number (For 2FA)
+            <input
+              type="text"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              placeholder="Enter phone number"
+            />
+            <button type="button" onClick={handlePhoneNumberVerification}>Send OTP</button>
+          </label>
+          <label>
+            Verification Code
+            <input
+              type="text"
+              value={verificationCode}
+              onChange={(e) => setVerificationCode(e.target.value)}
+              placeholder="Enter OTP"
+            />
+            <button type="button" onClick={verifyOTP}>Verify OTP</button>
+          </label>
+          <button type="submit" className="btn btn-primary">Save Changes</button>
+        </form>
+        <div id="recaptcha-container"></div>
+      </Modal>
     </div>
   );
 };
 
-export default Profile;
+export default ProfilePage;

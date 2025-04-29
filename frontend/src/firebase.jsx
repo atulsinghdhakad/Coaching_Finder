@@ -22,3 +22,4 @@ facebookProvider.setCustomParameters({
 });
 
 export { auth, googleProvider, facebookProvider };
+// export const googleProvider = new GoogleAuthProvider();

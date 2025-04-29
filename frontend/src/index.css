@@ -162,3 +162,18 @@ body.dark a:hover {
 .animate-slideDown {
   animation: slideDown 0.5s ease forwards;
 }
+
+
+
+.loader {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #6d28d9;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

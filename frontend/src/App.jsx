@@ -10,12 +10,20 @@ import ContactPage from './pages/ContactPage';
 import './App.css'; // Ensure global styles
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import Footer from './components/Footer'; // Import Footer component
-import ScrollToTop from './pages/ScrollToTop';
+import ScrollToTop from './pages/ScrollToTop';  // Import ScrollToTop component
 import { Toaster } from 'react-hot-toast';
 import ScrollProgressBar from './pages/ScrollProgressBar';
 import NotFoundPage from './pages/NotFoundPage'; // Import NotFoundPage component
 import BottomToastNotification from './pages/BottomToastNotification';
 import PrivacyPolicy from './pages/PrivacyPolicy'; // Import PrivacyPolicy component
+import ThankYouPage from './pages/ThankYouPage';
+import AdminContacts from './pages/AdminContacts'; // Import AdminContacts component
+import AdminLogin from './pages/AdminLogin';
+import AdminPanel from './pages/AdminPanel'; // Import AdminPanel component
+import { auth } from './firebase';  // Adjust the path if needed
+import { Navigate } from 'react-router-dom';  // Add this import
+
+
 
 
 
@@ -34,6 +42,20 @@ const App = () => {
     }
   }, []);
 
+
+//Admin route
+const PrivateRoute = ({ element, ...rest }) => {
+  const user = auth.currentUser; // Or your preferred authentication method
+  
+  return user ? <Navigate to="/admin" /> : <Navigate to="/login" />;
+};
+
+
+
+
+
+
+
   // Toggle dark mode
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -51,10 +73,11 @@ const App = () => {
       {/* Dark mode toggle applied globally to the root element */}
       <div className={darkMode ? 'dark' : ''}>
       <ScrollProgressBar />
-      <ScrollToTop/>
+      <ScrollToTop/>  
         <Navbar darkMode={darkMode} setDarkMode={setDarkMode} toggleDarkMode={toggleDarkMode} />
         
         <Routes>
+          {/* Public routes */}
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -64,8 +87,34 @@ const App = () => {
           <Route path="*" element={<NotFoundPage />} />
           <Route path="/register" component={RegisterPage} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-        </Routes>
+          <Route path="/thankyou" element={<ThankYouPage />} />
+          <Route path="/admin/contacts" element={<AdminContacts />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/adminlogin" element={<AdminLogin />} />
+          
+          
+          {/* Admin - Protected Route */}
+        <Route
+          path="/admin"
+          element={
+            <PrivateRoute adminOnly={true}>
+            </PrivateRoute>
+          }
+        />
+
+
+        {/* Admin Panel protected route */}
+      <Route
+        path="/adminpanel"
+        element={
+          <PrivateRoute adminOnly={true}>
+            <AdminPanel />
+          </PrivateRoute>
+        }
+      />
         
+        </Routes>
         <Footer />
         <ScrollToTop />
         

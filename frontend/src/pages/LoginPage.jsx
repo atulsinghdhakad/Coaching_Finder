@@ -10,6 +10,7 @@ import { auth, googleProvider, facebookProvider } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
 import { FcGoogle } from 'react-icons/fc';
 import { FaFacebook } from 'react-icons/fa';
+import { useLocation } from 'react-router-dom';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -20,15 +21,21 @@ const LoginPage = () => {
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isPhoneLogin, setIsPhoneLogin] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/';
+
+
 
   const handleLogin = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      navigate('/');
+      navigate(from, { replace: true });
+      // navigate('/');
+      navigate(from, { replace: true }); // ✅ go back to intended page
     } catch (error) {
       setMessage(error.message);
     }
   };
+  
 
   const handleGoogleLogin = async () => {
     try {

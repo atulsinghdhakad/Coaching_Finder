@@ -173,3 +173,8 @@ body.dark .navbar .absolute button:hover {
 .navbar .absolute button:last-child {
 	margin-top: 0.5rem;
 }
+
+
+.bi-lock-fill {
+	color: #f3a847; /* or any color of your choice */
+  }
