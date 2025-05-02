@@ -6,31 +6,21 @@ const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const app = express();
-app.use(cors());
+const PORT = process.env.PORT || 5000;
+
+// Middleware
+app.use(cors({ origin: ['http://localhost:3000', 'https://coachingfinder1.vercel.app'] }));
 app.use(express.json());
 
-
-const cors = require('cors');
-app.use(cors({ origin: 'http://localhost:3001' }));
-
-
-
-// Constants
-const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI;
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
-const SMTP_EMAIL = process.env.SMTP_EMAIL;
-const SMTP_PASS = process.env.SMTP_PASS;
-
-// MongoDB
-mongoose.connect(MONGO_URI, {
+// MongoDB Connection
+mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
 .then(() => console.log('✅ Connected to MongoDB'))
-.catch((err) => console.error('MongoDB Error:', err));
+.catch((err) => console.error('❌ MongoDB Error:', err));
 
-// Mongo Schema
+// Contact Schema
 const ContactSchema = new mongoose.Schema({
   name: String,
   email: String,
@@ -42,20 +32,19 @@ const ContactSchema = new mongoose.Schema({
 });
 const Contact = mongoose.model('Contact', ContactSchema);
 
-// Setup Nodemailer Transport
+// Nodemailer Setup
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: SMTP_EMAIL,
-    pass: SMTP_PASS,
+    user: process.env.SMTP_EMAIL,
+    pass: process.env.SMTP_PASS,
   }
 });
 
-// Contact Form API
+// Contact Form Handler
 app.post('/api/contact', async (req, res) => {
   try {
     const { name, email, message } = req.body;
-
     if (!name || !email || !message) {
       return res.status(400).json({ error: 'All fields are required' });
     }
@@ -63,13 +52,13 @@ app.post('/api/contact', async (req, res) => {
     const newContact = new Contact({ name, email, message });
     await newContact.save();
 
-    // ✉️ Send Email
+    // Send Email Notification
     await transporter.sendMail({
-      from: SMTP_EMAIL,
-      to: SMTP_EMAIL, // send to your own admin email
-      subject: '📩 New Coaching Finder Contact Submission',
+      from: process.env.SMTP_EMAIL,
+      to: process.env.SMTP_EMAIL,
+      subject: '📩 New Contact Submission - Coaching Finder',
       html: `
-        <h2>New Contact Message</h2>
+        <h3>New Message</h3>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Message:</strong><br>${message}</p>
@@ -77,80 +66,58 @@ app.post('/api/contact', async (req, res) => {
     });
 
     res.status(201).json({ message: 'Form saved and email sent' });
-
   } catch (error) {
-    console.error('Error handling contact:', error);
+    console.error('❌ Contact Form Error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
-// Places API
+// Google Places API
 app.get('/api/places', async (req, res) => {
   const { lat, lng } = req.query;
   try {
-    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=5000&type=establishment&keyword=coaching&key=${GOOGLE_API_KEY}`;
+    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=5000&type=establishment&keyword=coaching&key=${process.env.GOOGLE_API_KEY}`;
     const response = await axios.get(url);
     res.json(response.data);
   } catch (error) {
-    console.error('Places API Error:', error.message);
+    console.error('❌ Places API Error:', error.message);
     res.status(500).json({ error: 'Failed to fetch places' });
   }
 });
 
-
-
-
-// Fetch all contacts for Admin
-app.get('/api/admin/contacts', async (req, res) => {
-    try {
-      const contacts = await Contact.find().sort({ createdAt: -1 });
-      res.json(contacts);
-    } catch (error) {
-      console.error('Error fetching contacts:', error);
-      res.status(500).json({ error: 'Failed to fetch contacts' });
-    }
-  });
-
-
-
-// Simple Admin Auth Middleware
+// Admin Auth Middleware
 const adminAuth = (req, res, next) => {
-    const token = req.headers.authorization;
-  
-    if (token === `Bearer ${process.env.ADMIN_SECRET}`) {
-      next(); // ✅ Auth success
-    } else {
-      res.status(401).json({ error: 'Unauthorized' });
-    }
-  };
+  const token = req.headers.authorization;
+  if (token === `Bearer ${process.env.ADMIN_SECRET}`) {
+    next();
+  } else {
+    res.status(401).json({ error: 'Unauthorized' });
+  }
+};
 
+// Admin: Get Contacts
+app.get('/api/admin/contacts', adminAuth, async (req, res) => {
+  try {
+    const contacts = await Contact.find().sort({ createdAt: -1 });
+    res.json(contacts);
+  } catch (error) {
+    console.error('❌ Admin Fetch Error:', error);
+    res.status(500).json({ error: 'Failed to fetch contacts' });
+  }
+});
 
+// Admin: Delete Contact
+app.delete('/api/admin/contact/:id', adminAuth, async (req, res) => {
+  try {
+    await Contact.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Deleted successfully' });
+  } catch (error) {
+    console.error('❌ Delete Error:', error);
+    res.status(500).json({ error: 'Failed to delete contact' });
+  }
+});
 
-
-
-  app.get('/api/admin/contacts', adminAuth, async (req, res) => {
-    try {
-      const contacts = await Contact.find().sort({ createdAt: -1 });
-      res.json(contacts);
-    } catch (error) {
-      console.error('Error fetching contacts:', error);
-      res.status(500).json({ error: 'Failed to fetch contacts' });
-    }
-  });
-
-
-  app.delete('/api/admin/contact/:id', adminAuth, async (req, res) => {
-    try {
-      await Contact.findByIdAndDelete(req.params.id);
-      res.json({ message: 'Deleted successfully' });
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to delete' });
-    }
-  });
-
-
-
-// Server start
+// Start Server
 app.listen(PORT, () => {
   console.log(`✅ Server running: http://localhost:${PORT}`);
 });
