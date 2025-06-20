@@ -1,0 +1,17 @@
+{
+  "name": "coaching-finder",
+  "version": "1.0.0",
+  "description": "A modern, full-stack web application for finding coaching institutes",
+  "private": true,
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "start": "cd frontend && npm start",
+    "install": "cd frontend && npm install"
+  },
+  "workspaces": [
+    "frontend"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  }
+} 
