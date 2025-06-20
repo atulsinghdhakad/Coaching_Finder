@@ -1,9 +1,12 @@
 {
-  "redirects": [
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/build",
+  "installCommand": "cd frontend && npm install",
+  "framework": "create-react-app",
+  "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "https://your-domain.com/$1",
-      "permanent": true
+      "destination": "/index.html"
     }
   ]
 }
