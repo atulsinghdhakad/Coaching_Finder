@@ -39,19 +39,49 @@ const LoginPage = () => {
 
   const handleGoogleLogin = async () => {
     try {
+      console.log('🔍 Attempting Google login...');
       await signInWithPopup(auth, googleProvider);
+      console.log('✅ Google login successful');
       navigate('/');
     } catch (error) {
-      setMessage('Google login failed');
+      console.error('❌ Google login error:', error);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      
+      // Provide specific error messages
+      if (error.code === 'auth/popup-closed-by-user') {
+        setMessage('Login cancelled. Please try again.');
+      } else if (error.code === 'auth/unauthorized-domain') {
+        setMessage('Login failed: Domain not authorized. Please contact support.');
+      } else if (error.code === 'auth/popup-blocked') {
+        setMessage('Popup blocked. Please allow popups for this site.');
+      } else {
+        setMessage(`Google login failed: ${error.message}`);
+      }
     }
   };
 
   const handleFacebookLogin = async () => {
     try {
+      console.log('🔍 Attempting Facebook login...');
       await signInWithPopup(auth, facebookProvider);
+      console.log('✅ Facebook login successful');
       navigate('/');
     } catch (error) {
-      setMessage('Facebook login failed');
+      console.error('❌ Facebook login error:', error);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      
+      // Provide specific error messages
+      if (error.code === 'auth/popup-closed-by-user') {
+        setMessage('Login cancelled. Please try again.');
+      } else if (error.code === 'auth/unauthorized-domain') {
+        setMessage('Login failed: Domain not authorized. Please contact support.');
+      } else if (error.code === 'auth/popup-blocked') {
+        setMessage('Popup blocked. Please allow popups for this site.');
+      } else {
+        setMessage(`Facebook login failed: ${error.message}`);
+      }
     }
   };
 
@@ -188,7 +218,7 @@ const LoginPage = () => {
         )}
 
         <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-300">
-          Don’t have an account?{' '}
+          Don't have an account?{' '}
           <Link to="/register" className="text-blue-500 hover:underline">Sign up</Link>
         </p>
       </div>
