@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/build",
+  "installCommand": "echo 'Installation handled in build command'",
+  "framework": "create-react-app"
+} 
