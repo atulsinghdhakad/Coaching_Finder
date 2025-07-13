@@ -14,7 +14,7 @@ const HomePage = () => {
       setLoading(true);
       try {
         // Backend API call
-        const url = `http://localhost:5000/api/places?lat=37.7749&lng=-122.4194`;
+        const url = `/api/places?lat=37.7749&lng=-122.4194`;
 
         // Fetch data from backend
         const response = await fetch(url);

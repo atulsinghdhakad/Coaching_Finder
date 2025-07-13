@@ -7,7 +7,7 @@ import './Navbar.css';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { toast } from 'react-hot-toast';
-import ProfileDropdown from './ProfileDropdown';
+import ScrollToTopButton from '../pages/ScrollToTop';
 
 const ADMIN_EMAILS = ['atulsinghdhakad15@gmail.com']; // ✅ your admin emails
 const MySwal = withReactContent(Swal);
@@ -116,10 +116,41 @@ const Navbar = ({ setDarkMode, darkMode }) => {
             <Link to="/about" className="hover:text-gray-300 text-sm">About Us</Link>
             <Link to="/contact" className="hover:text-gray-300 text-sm">Contact Us</Link>
 
+            {/* Admin Panel link visible only for Admin */}
+            {user && ADMIN_EMAILS.includes(user.email) && (
+              <Link to="/adminpanel" className="hover:text-gray-300 text-sm flex items-center gap-1">
+                <i className="bi bi-shield-lock-fill"></i>Admin
+              </Link>
+            )}
+
             {!user ? (
               <Link to="/login" className="hover:text-gray-300 text-sm">Login</Link>
             ) : (
-              <ProfileDropdown user={user} darkMode={darkMode} />
+              <div className="relative" ref={dropdownRef}>
+                <div className="flex items-center cursor-pointer" onClick={() => setShowDropdown(!showDropdown)}>
+                  <img src={user.photoURL || 'https://via.placeholder.com/40'} alt="Profile" className="w-8 h-8 rounded-full" />
+                  <span className="ml-2 text-sm">{user.displayName || 'User'}</span>
+                </div>
+
+                {showDropdown && (
+                  <div className={`absolute right-0 mt-2 w-56 rounded-lg shadow-xl z-50 overflow-hidden ${darkMode ? 'bg-gray-800 text-white border border-gray-700' : 'bg-white text-black border border-gray-200'}`}>
+                    <div className="px-4 py-3 border-b text-sm font-medium break-words">
+  {user.email}
+  {ADMIN_EMAILS.includes(user.email) && (
+    <span className="ml-2 bg-purple-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+      🛡️ Admin
+    </span>
+  )}
+</div>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center justify-center text-left px-4 py-2 hover:bg-red-100 text-red-600 text-sm"
+                    >
+                      <i className="bi bi-box-arrow-right mr-2"></i> Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Dark mode toggle */}
@@ -143,6 +174,12 @@ const Navbar = ({ setDarkMode, darkMode }) => {
             <Link to="/about" onClick={() => setMenuOpen(false)} className="block text-sm hover:text-gray-300">About Us</Link>
             <Link to="/contact" onClick={() => setMenuOpen(false)} className="block text-sm hover:text-gray-300">Contact Us</Link>
 
+            {user && ADMIN_EMAILS.includes(user.email) && (
+              <Link to="/adminpanel" onClick={() => setMenuOpen(false)} className="block text-sm hover:text-gray-300 flex items-center gap-1">
+                <i className="bi bi-shield-lock-fill"></i> Admin Panel
+              </Link>
+            )}
+
             {!user ? (
               <Link to="/login" onClick={() => setMenuOpen(false)} className="block text-sm hover:text-gray-300">Login</Link>
             ) : (
@@ -153,6 +190,14 @@ const Navbar = ({ setDarkMode, darkMode }) => {
           </div>
         )}
       </nav>
+
+      {/* Scroll To Top Button */}
+      <button
+        onClick={ScrollToTopButton}
+        className="fixed bottom-6 right-6 p-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-all"
+      >
+        <i className="bi bi-arrow-up"></i>
+      </button>
     </>
   );
 };

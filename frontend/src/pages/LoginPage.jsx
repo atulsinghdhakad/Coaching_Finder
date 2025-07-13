@@ -5,12 +5,14 @@ import {
   sendPasswordResetEmail,
   signInWithPhoneNumber,
   RecaptchaVerifier,
+  fetchSignInMethodsForEmail,
+  linkWithCredential,
 } from 'firebase/auth';
 import { auth, googleProvider, facebookProvider } from '../firebase';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { FcGoogle } from 'react-icons/fc';
 import { FaFacebook } from 'react-icons/fa';
-import { useLocation } from 'react-router-dom';
+import './LoginPage.css';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -20,11 +22,11 @@ const LoginPage = () => {
   const [message, setMessage] = useState('');
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isPhoneLogin, setIsPhoneLogin] = useState(false);
+  const [showAccountLinking, setShowAccountLinking] = useState(false);
+  const [linkingEmail, setLinkingEmail] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
-
-
 
   const handleLogin = async () => {
     try {
@@ -36,7 +38,6 @@ const LoginPage = () => {
     }
   };
   
-
   const handleGoogleLogin = async () => {
     try {
       console.log('🔍 Attempting Google login...');
@@ -57,30 +58,6 @@ const LoginPage = () => {
         setMessage('Popup blocked. Please allow popups for this site.');
       } else {
         setMessage(`Google login failed: ${error.message}`);
-      }
-    }
-  };
-
-  const handleFacebookLogin = async () => {
-    try {
-      console.log('🔍 Attempting Facebook login...');
-      await signInWithPopup(auth, facebookProvider);
-      console.log('✅ Facebook login successful');
-      navigate('/');
-    } catch (error) {
-      console.error('❌ Facebook login error:', error);
-      console.error('Error code:', error.code);
-      console.error('Error message:', error.message);
-      
-      // Provide specific error messages
-      if (error.code === 'auth/popup-closed-by-user') {
-        setMessage('Login cancelled. Please try again.');
-      } else if (error.code === 'auth/unauthorized-domain') {
-        setMessage('Login failed: Domain not authorized. Please contact support.');
-      } else if (error.code === 'auth/popup-blocked') {
-        setMessage('Popup blocked. Please allow popups for this site.');
-      } else {
-        setMessage(`Facebook login failed: ${error.message}`);
       }
     }
   };
@@ -119,11 +96,85 @@ const LoginPage = () => {
     }
   };
 
+  const handleFacebookLogin = async () => {
+    try {
+      console.log('🔍 Attempting Facebook login...');
+      
+      // First, try to sign in with Facebook
+      const result = await signInWithPopup(auth, facebookProvider);
+      console.log('✅ Facebook login successful');
+      navigate('/');
+      
+    } catch (error) {
+      console.error('❌ Facebook login error:', error);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      
+      if (error.code === 'auth/account-exists-with-different-credential') {
+        // This is the key error we need to handle
+        const email = error.customData?.email;
+        
+        if (email) {
+          try {
+            // Check what sign-in methods are available for this email
+            const methods = await fetchSignInMethodsForEmail(auth, email);
+            
+            if (methods.includes('google.com')) {
+              setMessage('⚠️ An account with this email already exists using Google. Please sign in with Google first, then you can link your Facebook account.');
+            } else if (methods.includes('password')) {
+              setMessage('⚠️ An account with this email already exists using email/password. Please sign in with your password first, then you can link your Facebook account.');
+            } else {
+              setMessage('⚠️ An account with this email already exists using a different method. Please try the original sign-in method.');
+            }
+          } catch (fetchError) {
+            setMessage('⚠️ Account linking issue detected. Please try signing in with Google or email/password instead.');
+          }
+        } else {
+          setMessage('⚠️ Account linking issue. Please try signing in with Google or email/password instead.');
+        }
+      } else if (error.code === 'auth/popup-closed-by-user') {
+        setMessage('Login cancelled. Please try again.');
+      } else if (error.code === 'auth/unauthorized-domain') {
+        setMessage('Login failed: Domain not authorized. Please contact support.');
+      } else if (error.code === 'auth/popup-blocked') {
+        setMessage('Popup blocked. Please allow popups for this site.');
+      } else if (error.code === 'auth/operation-not-allowed') {
+        setMessage('Facebook login is not enabled. Please contact support.');
+      } else if (error.code === 'auth/invalid-credential') {
+        setMessage('Invalid Facebook credentials. Please try again.');
+      } else if (error.code === 'auth/network-request-failed') {
+        setMessage('Network error. Please check your internet connection and try again.');
+      } else {
+        setMessage(`Facebook login failed: ${error.message}`);
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 px-4">
       <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 w-full max-w-md">
         <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-white mb-6">Login</h2>
-        {message && <p className="text-red-500 text-center mb-4">{message}</p>}
+        {message && (
+          <div className={`p-3 rounded-md mb-4 text-center ${
+            message.includes('account-exists-with-different-credential') || message.includes('⚠️')
+              ? 'bg-yellow-100 border border-yellow-400 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+              : 'bg-red-100 border border-red-400 text-red-800 dark:bg-red-900 dark:text-red-200'
+          }`}>
+            <p className="text-sm">{message}</p>
+            {message.includes('account-exists-with-different-credential') && (
+              <div className="mt-2">
+                <p className="text-xs opacity-75 mb-2">
+                  💡 To link your Facebook account:
+                </p>
+                <div className="text-xs space-y-1">
+                  <p>1. Sign in with your original method (Google/Email)</p>
+                  <p>2. Go to your profile settings</p>
+                  <p>3. Link your Facebook account there</p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {!isOtpSent && !isPhoneLogin ? (
           <>

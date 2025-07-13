@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="restore_package">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/restore_package.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

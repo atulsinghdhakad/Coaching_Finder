@@ -1,94 +1,179 @@
 // src/pages/AdminLogin.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { motion } from 'framer-motion';
+import coachingFinderLogo from '../components/images/logo.png';
 
 const MySwal = withReactContent(Swal);
 
-const AdminLogin = () => {
-  const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+const AdminLoginPage = () => {
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [loggingIn, setLoggingIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+
+  // Default admin credentials
+  const ADMIN_CREDENTIALS = {
+    username: 'admin',
+    password: 'admin123'
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
-    // 🔐 Hardcoded credentials
-    const ADMIN_EMAIL = 'admin@coachingfinder.com';
-    const ADMIN_PASSWORD = 'admin1234';
+    try {
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-    setLoggingIn(true);
+      if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+        // Store admin session
+        localStorage.setItem('adminLoggedIn', 'true');
+        localStorage.setItem('adminUsername', username);
 
-    setTimeout(() => {
-      if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-        navigate('/admin/panel');
+        toast.success('🎉 Welcome Admin!', {
+          duration: 3000,
+          style: {
+            background: 'linear-gradient(to right, #8e2de2, #4a00e0)',
+            color: '#fff',
+            fontWeight: 'bold',
+            padding: '12px 20px',
+            fontSize: '16px',
+            borderRadius: '10px',
+          },
+          icon: '🔒',
+        });
+
+        // Redirect to admin panel
+        navigate('/adminpanel');
       } else {
         MySwal.fire({
           icon: 'error',
-          title: 'Invalid Credentials',
-          text: 'The email or password you entered is incorrect.',
-          confirmButtonColor: '#7C3AED',
-          background: '#fefefe'
+          title: 'Access Denied',
+          text: 'Invalid username or password!',
+          confirmButtonColor: '#d33',
+          background: '#f9fafb'
         });
       }
-      setLoggingIn(false);
-    }, 800); // Simulate login delay
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error('Login failed! Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+  // Check if already logged in
+  useEffect(() => {
+    const isAdminLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+    if (isAdminLoggedIn) {
+      navigate('/adminpanel');
+    }
+  }, [navigate]);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-      <motion.div
-        className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-xl w-full max-w-md"
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <h2 className="text-2xl font-bold mb-6 text-center text-purple-600 flex items-center justify-center space-x-2">
-          <i className="bi bi-shield-lock-fill"></i>
-          <span>Admin Login</span>
-        </h2>
+    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white p-6">
+      <div className="w-full max-w-md">
+        {/* Logo and Header */}
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <img src={coachingFinderLogo} alt="Logo" className="w-16 h-16" />
+          </div>
+          <h1 className="text-3xl font-bold text-white mb-2">Admin Panel</h1>
+          <p className="text-gray-300">Enter your credentials to access the admin panel</p>
+        </div>
 
-        <form onSubmit={handleLogin} className="space-y-5">
-          <div>
-            <label className="block text-sm mb-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700"
-              required
-            />
+        {/* Login Form */}
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20">
+          <form onSubmit={handleLogin} className="space-y-6">
+            {/* Username Field */}
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-gray-200 mb-2">
+                Username
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i className="bi bi-person text-gray-400"></i>
+                </div>
+                <input
+                  type="text"
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  placeholder="Enter username"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Password Field */}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-200 mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i className="bi bi-lock text-gray-400"></i>
+                </div>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  placeholder="Enter password"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Login Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  Logging in...
+                </div>
+              ) : (
+                <div className="flex items-center justify-center">
+                  <i className="bi bi-shield-lock mr-2"></i>
+                  Login to Admin Panel
+                </div>
+              )}
+            </button>
+          </form>
+
+          {/* Default Credentials Hint */}
+          <div className="mt-6 p-4 bg-yellow-500/20 border border-yellow-500/30 rounded-lg">
+            <div className="flex items-center">
+              <i className="bi bi-info-circle text-yellow-400 mr-2"></i>
+              <span className="text-yellow-200 text-sm">
+                Default credentials: <strong>admin</strong> / <strong>admin123</strong>
+              </span>
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm mb-1">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700"
-              required
-            />
+          {/* Back to Home */}
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => navigate('/')}
+              className="text-gray-300 hover:text-white transition-colors text-sm"
+            >
+              <i className="bi bi-arrow-left mr-1"></i>
+              Back to Home
+            </button>
           </div>
-
-          <button
-            type="submit"
-            disabled={loggingIn}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-md transition-all duration-300 flex justify-center items-center"
-          >
-            {loggingIn ? (
-              <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
-            ) : (
-              'Login as Admin'
-            )}
-          </button>
-        </form>
-      </motion.div>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default AdminLogin;
+export default AdminLoginPage;

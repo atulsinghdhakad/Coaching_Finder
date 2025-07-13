@@ -18,9 +18,8 @@ import BottomToastNotification from './pages/BottomToastNotification';
 import PrivacyPolicy from './pages/PrivacyPolicy'; // Import PrivacyPolicy component
 import ThankYouPage from './pages/ThankYouPage';
 import AdminContacts from './pages/AdminContacts'; // Import AdminContacts component
-import AdminLoginPage from './pages/AdminLoginPage';
+import AdminLogin from './pages/AdminLogin';
 import AdminPanel from './pages/AdminPanel'; // Import AdminPanel component
-import ProtectedAdminRoute from './routes/ProtectedAdminRoute';
 import { auth } from './firebase';  // Adjust the path if needed
 import { Navigate } from 'react-router-dom';  // Add this import
 
@@ -42,6 +41,19 @@ const App = () => {
       document.documentElement.classList.remove('dark');
     }
   }, []);
+
+
+//Admin route
+const PrivateRoute = ({ element, ...rest }) => {
+  const user = auth.currentUser; // Or your preferred authentication method
+  
+  return user ? <Navigate to="/admin" /> : <Navigate to="/login" />;
+};
+
+
+
+
+
 
 
   // Toggle dark mode
@@ -77,10 +89,31 @@ const App = () => {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/thankyou" element={<ThankYouPage />} />
           <Route path="/admin/contacts" element={<AdminContacts />} />
-          <Route path="/admin/login" element={<AdminLoginPage />} />
-          <Route path="/admin" element={<ProtectedAdminRoute><AdminPanel /></ProtectedAdminRoute>} />
-          <Route path="/adminlogin" element={<AdminLoginPage />} />
-          <Route path="/adminpanel" element={<ProtectedAdminRoute><AdminPanel /></ProtectedAdminRoute>} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/adminlogin" element={<AdminLogin />} />
+          
+          
+          {/* Admin - Protected Route */}
+        <Route
+          path="/admin"
+          element={
+            <PrivateRoute adminOnly={true}>
+            </PrivateRoute>
+          }
+        />
+
+
+        {/* Admin Panel protected route */}
+      <Route
+        path="/adminpanel"
+        element={
+          <PrivateRoute adminOnly={true}>
+            <AdminPanel />
+          </PrivateRoute>
+        }
+      />
+        
         </Routes>
         <Footer />
         <ScrollToTop />

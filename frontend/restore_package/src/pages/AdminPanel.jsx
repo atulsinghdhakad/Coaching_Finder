@@ -26,39 +26,28 @@ const AdminPanel = () => {
   };
 
   useEffect(() => {
-    // Check admin session from localStorage
-    const adminLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
-    const adminUsername = localStorage.getItem('adminUsername');
-    
-    if (adminLoggedIn && adminUsername) {
-      // Create admin user object from localStorage
-      const adminUser = {
-        email: `${adminUsername}@admin.com`,
-        displayName: 'Admin',
-        photoURL: null // No photo for admin login
-      };
-      
-      setUser(adminUser);
-      playSound();
-      toast.success(`🎉 Welcome Admin: ${adminUsername}`, {
-        duration: 3000,
-        position: 'top-center',
-        style: {
-          background: 'linear-gradient(to right, #8e2de2, #4a00e0)',
-          color: '#fff',
-          fontWeight: 'bold',
-          fontSize: '16px',
-          padding: '12px 20px',
-          borderRadius: '10px',
-          boxShadow: '0px 4px 10px rgba(0,0,0,0.2)',
-        },
-        icon: '🔒',
-      });
-    } else {
-      // If not logged in as admin, redirect to login
-      navigate('/adminlogin');
-    }
-  }, [navigate]);
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        playSound();
+        toast.success(`🎉 Welcome Admin: ${currentUser.email}`, {
+          duration: 3000,
+          position: 'top-center',
+          style: {
+            background: 'linear-gradient(to right, #8e2de2, #4a00e0)',
+            color: '#fff',
+            fontWeight: 'bold',
+            fontSize: '16px',
+            padding: '12px 20px',
+            borderRadius: '10px',
+            boxShadow: '0px 4px 10px rgba(0,0,0,0.2)',
+          },
+          icon: '🔒',
+        });
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const fetchContacts = async () => {
     try {
@@ -97,36 +86,6 @@ const AdminPanel = () => {
         },
       });
       navigate('/');
-    }
-  };
-
-  const handleLogout = async () => {
-    const result = await MySwal.fire({
-      title: 'Logout from Admin Panel?',
-      text: 'You will be logged out and need to login again.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#6b7280',
-      confirmButtonText: 'Yes, Logout',
-      background: '#f9fafb',
-    });
-
-    if (result.isConfirmed) {
-      // Clear admin session
-      localStorage.removeItem('adminLoggedIn');
-      localStorage.removeItem('adminUsername');
-      
-      playSound();
-      toast.success('Logged out successfully!', {
-        style: {
-          background: 'linear-gradient(to right, #ff416c, #ff4b2b)',
-          color: '#fff',
-          fontWeight: 'bold',
-          borderRadius: '10px'
-        },
-      });
-      navigate('/adminlogin');
     }
   };
 
@@ -213,41 +172,20 @@ const AdminPanel = () => {
   {/* Left: Welcome Panel */}
   <div>
     <h2 className="text-2xl font-semibold mb-2 font-bold text-purple-600">🎉 Welcome, Admin!</h2>
-    <div className="flex items-center space-x-3 mb-2">
-      {user.photoURL ? (
-        <img src={user.photoURL} alt="Admin" className="w-12 h-12 rounded-full" />
-      ) : (
-        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center text-white font-bold text-lg">
-          A
-        </div>
-      )}
-      <div>
-        <p><strong>Username:</strong> {user.displayName}</p>
-        <p><strong>Email:</strong> {user.email}</p>
-      </div>
-    </div>
+    {user.photoURL && <img src={user.photoURL} alt="Admin" className="w-12 h-12 rounded-full" />}
+    <p><strong>Email:</strong> {user.email}</p>
     <p className="text-gray-600 dark:text-gray-400 mt-2">
       You now have access to manage contacts, view submissions, download reports, and more.
     </p>
   </div>
 
-  {/* Right: Action Buttons */}
-  <div className="flex space-x-3">
-    <button
-      onClick={handleLogout}
-      className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300"
-    >
-      <i className="bi bi-box-arrow-right mr-2"></i>
-      Logout
-    </button>
-    <button
-      onClick={handleExitAdmin}
-      className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300"
-    >
-      <i className="bi bi-arrow-left mr-2"></i>
-      Exit Admin
-    </button>
-  </div>
+  {/* Right: Exit Admin Button */}
+  <button
+    onClick={handleExitAdmin}
+    className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300"
+  >
+    Exit Admin
+  </button>
 </div>
 
 

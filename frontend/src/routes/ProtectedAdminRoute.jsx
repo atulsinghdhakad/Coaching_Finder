@@ -1,42 +1,36 @@
 // src/routes/ProtectedAdminRoute.jsx
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../firebase';
-
-const ADMIN_EMAIL = "atulsinghdhakad15@gmail.com"; // 🔥 Replace with your admin email
+import React, { useEffect, useState } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 
 const ProtectedAdminRoute = ({ children }) => {
-  const [user, setUser] = React.useState(null);
-  const [checkingAuth, setCheckingAuth] = React.useState(true);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const location = useLocation();
 
-  React.useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setCheckingAuth(false);
-    });
+  useEffect(() => {
+    const checkAdminLogin = () => {
+      const adminLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+      setIsAdminLoggedIn(adminLoggedIn);
+      setIsLoading(false);
+    };
 
-    return () => unsubscribe();
+    checkAdminLogin();
   }, []);
 
-  if (checkingAuth) {
+  if (isLoading) {
     return (
-      <div className="fixed top-4 right-4 flex flex-col items-center space-y-2 z-50">
-        <div className="h-8 w-8 border-4 border-purple-500 border-dashed rounded-full animate-spin"></div>
-        <p className="text-xs text-gray-500 dark:text-gray-300">Checking access...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+        <div className="text-center text-white">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p>Checking admin access...</p>
+        </div>
       </div>
     );
   }
 
-  if (!user || user.email !== ADMIN_EMAIL) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-white dark:bg-gray-900 text-center p-10">
-        <h1 className="text-4xl font-bold text-red-600 mb-6">Access Denied</h1>
-        <p className="text-lg text-gray-700 dark:text-gray-300">
-          Sorry, you do not have permission to access this page.
-        </p>
-      </div>
-    );
+  if (!isAdminLoggedIn) {
+    // Silently redirect to admin login without showing error toast
+    return <Navigate to="/adminlogin" replace />;
   }
 
   return children;
